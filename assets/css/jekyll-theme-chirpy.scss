@@ -146,6 +146,29 @@
   }
 }
 
+/* 사이드바 누적 방문자 */
+#visitor-counter {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  align-self: center;
+  margin: 0 0 1rem;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  background: var(--sidebar-btn-bg);
+  color: var(--sidebar-muted-color);
+  font-size: 0.85rem;
+
+  i {
+    color: var(--ab-accent);
+  }
+
+  .vc-num {
+    color: var(--site-title-color);
+    font-weight: 700;
+  }
+}
+
 /* ---------- 상단바 ---------- */
 #topbar-wrapper {
   backdrop-filter: blur(10px);
@@ -293,6 +316,15 @@ article header h1::after {
   margin-top: 0.8rem;
   border-radius: 999px;
   background: linear-gradient(90deg, var(--ab-accent), var(--ab-accent-2));
+}
+
+/* 목차 현재 위치 */
+#toc-wrapper .is-active-link {
+  color: var(--ab-accent) !important;
+
+  &::before {
+    background-color: var(--ab-accent) !important;
+  }
 }
 
 /* ---------- 태그 ---------- */

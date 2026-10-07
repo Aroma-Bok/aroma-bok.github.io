@@ -1,0 +1,24 @@
+<!-- Sidebar visitor counter (GoatCounter TOTAL) -->
+{% if site.analytics.goatcounter.id %}
+<script defer>
+  document.addEventListener('DOMContentLoaded', function () {
+    var nav = document.querySelector('#sidebar nav');
+    if (!nav) return;
+
+    var box = document.createElement('div');
+    box.id = 'visitor-counter';
+    box.innerHTML =
+      '<i class="fas fa-mug-hot fa-fw"></i>' +
+      '<span class="vc-label">누적 방문</span>' +
+      '<span class="vc-num">-</span>';
+    nav.insertAdjacentElement('afterend', box);
+
+    fetch('https://{{ site.analytics.goatcounter.id }}.goatcounter.com/counter/TOTAL.json')
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (d) {
+        box.querySelector('.vc-num').textContent = String(d.count).replace(/[^\d]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',') || '0';
+      })
+      .catch(function () { box.querySelector('.vc-num').textContent = '0'; });
+  });
+</script>
+{% endif %}
