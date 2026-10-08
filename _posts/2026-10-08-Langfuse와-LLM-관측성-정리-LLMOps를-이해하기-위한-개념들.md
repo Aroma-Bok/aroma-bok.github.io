@@ -1,6 +1,6 @@
 ---
 title: "Langfuse와 LLM 관측성 정리 - LLMOps를 이해하기 위한 개념들"
-date: 2026-10-08 17:30:00 +0900
+date: 2026-10-08 16:00:00 +0900
 categories: ["AI & Data Engineering"]
 tags: ["langfuse", "llmops", "observability", "opentelemetry", "tracing", "prompt-management", "llm-evaluation", "llm-as-a-judge", "agent"]
 ---
