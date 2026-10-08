@@ -1,4 +1,4 @@
-<!-- Sidebar visitor counter (GoatCounter TOTAL) -->
+<!-- Sidebar visitor counter (GoatCounter: today / total) -->
 {% if site.analytics.goatcounter.id %}
 <script defer>
   document.addEventListener('DOMContentLoaded', function () {
@@ -8,17 +8,28 @@
     var box = document.createElement('div');
     box.id = 'visitor-counter';
     box.innerHTML =
+      '<div class="vc-item"><span class="vc-label">TODAY</span><span class="vc-num" data-vc="today">-</span></div>' +
       '<i class="fas fa-mug-hot fa-fw"></i>' +
-      '<span class="vc-label">누적 방문</span>' +
-      '<span class="vc-num">-</span>';
+      '<div class="vc-item"><span class="vc-label">TOTAL</span><span class="vc-num" data-vc="total">-</span></div>';
     nav.insertAdjacentElement('afterend', box);
 
-    fetch('https://{{ site.analytics.goatcounter.id }}.goatcounter.com/counter/TOTAL.json')
-      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
-      .then(function (d) {
-        box.querySelector('.vc-num').textContent = String(d.count).replace(/[^\d]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',') || '0';
-      })
-      .catch(function () { box.querySelector('.vc-num').textContent = '0'; });
+    var base = 'https://{{ site.analytics.goatcounter.id }}.goatcounter.com/counter/TOTAL.json';
+    /* today's date in KST (yyyy-mm-dd); no // comments: compress_html joins lines */
+    var today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
+
+    function fill(key, url) {
+      var el = box.querySelector('[data-vc="' + key + '"]');
+      fetch(url)
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+        .then(function (d) {
+          var n = String(d.count).replace(/[^\d]/g, '') || '0';
+          el.textContent = n.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        })
+        .catch(function () { el.textContent = '0'; });
+    }
+
+    fill('today', base + '?start=' + today);
+    fill('total', base);
   });
 </script>
 {% endif %}
