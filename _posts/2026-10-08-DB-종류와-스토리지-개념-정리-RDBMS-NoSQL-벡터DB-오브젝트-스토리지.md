@@ -3,6 +3,7 @@ title: "DB 종류와 스토리지 개념 정리 - RDBMS, NoSQL, 벡터 DB, 오�
 date: 2026-10-08 10:20:00 +0900
 categories: ["Solution & Tools", "DB"]
 tags: ["database", "rdbms", "nosql", "vector-db", "pgvector", "postgresql", "s3", "object-storage", "rag"]
+tistory_url: "https://aroma-bok.tistory.com/entry/DB-%EC%A2%85%EB%A5%98%EC%99%80-%EC%8A%A4%ED%86%A0%EB%A6%AC%EC%A7%80-%EA%B0%9C%EB%85%90-%EC%A0%95%EB%A6%AC-RDBMS-NoSQL-%EB%B2%A1%ED%84%B0-DB-%EC%98%A4%EB%B8%8C%EC%A0%9D%ED%8A%B8-%EC%8A%A4%ED%86%A0%EB%A6%AC%EC%A7%80"
 ---
 ### 들어가며
 

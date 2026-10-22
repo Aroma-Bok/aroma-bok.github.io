@@ -3,6 +3,7 @@ title: "Langfuse vs LangChain - 이름은 비슷한데 하는 일이 다르다"
 date: 2026-10-12 09:00:00 +0900
 categories: ["AI & Data Engineering"]
 tags: ["langfuse", "langchain", "langgraph", "langsmith", "llmops", "llm-application", "observability", "agent"]
+tistory_url: "https://aroma-bok.tistory.com/entry/Langfuse-vs-LangChain-%EC%9D%B4%EB%A6%84%EC%9D%80-%EB%B9%84%EC%8A%B7%ED%95%9C%EB%8D%B0-%ED%95%98%EB%8A%94-%EC%9D%BC%EC%9D%B4-%EB%8B%A4%EB%A5%B4%EB%8B%A4"
 ---
 ### 들어가며
 

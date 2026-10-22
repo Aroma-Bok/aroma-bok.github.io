@@ -3,6 +3,7 @@ title: "Fine-tuning vs Few-shot·Many-shot vs RAG - LLM을 원하는 대로 동�
 date: 2026-10-08 14:50:00 +0900
 categories: ["AI & Data Engineering"]
 tags: ["llm", "fine-tuning", "lora", "qlora", "few-shot", "many-shot", "in-context-learning", "chain-of-thought", "rag", "prompt-engineering"]
+tistory_url: "https://aroma-bok.tistory.com/entry/Fine-tuning-vs-Few-shot%C2%B7Many-shot-vs-RAG-LLM%EC%9D%84-%EC%9B%90%ED%95%98%EB%8A%94-%EB%8C%80%EB%A1%9C-%EB%8F%99%EC%9E%91%EC%8B%9C%ED%82%A4%EB%8A%94-%EB%B0%A9%EB%B2%95"
 ---
 ### 들어가며
 
