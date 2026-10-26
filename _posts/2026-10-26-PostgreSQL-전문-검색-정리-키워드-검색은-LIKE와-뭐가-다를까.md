@@ -3,6 +3,7 @@ title: "PostgreSQL 전문 검색 정리 - 키워드 검색은 LIKE와 뭐가 다
 date: 2026-10-26 09:00:00 +0900
 categories: ["Solution & Tools", "DB"]
 tags: ["postgresql", "full-text-search", "tsvector", "tsquery", "ts_rank", "stemming", "like", "gin-index", "keyword-search", "sql"]
+tistory_url: "https://aroma-bok.tistory.com/entry/PostgreSQL-%EC%A0%84%EB%AC%B8-%EA%B2%80%EC%83%89-%EC%A0%95%EB%A6%AC-%ED%82%A4%EC%9B%8C%EB%93%9C-%EA%B2%80%EC%83%89%EC%9D%80-LIKE%EC%99%80-%EB%AD%90%EA%B0%80-%EB%8B%A4%EB%A5%BC%EA%B9%8C-%EC%96%B4%EA%B0%84-tsvector-tsrank"
 ---
 ### 들어가며
 
