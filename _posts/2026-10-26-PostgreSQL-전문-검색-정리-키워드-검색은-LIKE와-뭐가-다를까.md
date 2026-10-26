@@ -2,7 +2,7 @@
 title: "PostgreSQL 전문 검색 정리 - 키워드 검색은 LIKE와 뭐가 다를까 (어간, tsvector, ts_rank)"
 date: 2026-10-26 09:00:00 +0900
 categories: ["Solution & Tools", "DB"]
-tags: ["postgresql", "full-text-search", "tsvector", "tsquery", "ts_rank", "stemming", "like", "gin-index", "keyword-search", "sql"]
+tags: ["postgresql", "full-text-search", "tsvector", "tsquery", "ts_rank", "stemming", "like", "gin-index", "keyword-search", "sql", "pgvector", "vector-search", "embedding"]
 tistory_url: "https://aroma-bok.tistory.com/entry/PostgreSQL-%EC%A0%84%EB%AC%B8-%EA%B2%80%EC%83%89-%EC%A0%95%EB%A6%AC-%ED%82%A4%EC%9B%8C%EB%93%9C-%EA%B2%80%EC%83%89%EC%9D%80-LIKE%EC%99%80-%EB%AD%90%EA%B0%80-%EB%8B%A4%EB%A5%BC%EA%B9%8C-%EC%96%B4%EA%B0%84-tsvector-tsrank"
 ---
 ### 들어가며
@@ -135,11 +135,98 @@ LIKE로 하려던 일에서 오히려 원하지 않는 결과(`inactive`)가 나
 - **단어의 희귀성은 모른다.** 흔한 단어와 드문 단어를 똑같이 취급한다. 그런 점수가 필요하면 BM25 같은 다른 방식을 써야 한다.
 - 점수가 같으면 순서가 정해지지 않으므로 `ORDER BY score DESC, id`처럼 보조 정렬을 두는 편이 좋다.
 
-### 8. 한계와 쓸 만한 곳
+### 8. 키워드 검색의 한계
 
 - `english` 설정은 **영어 전용**이다. 한국어 문장에는 이 규칙이 맞지 않는다. 한국어는 글자 조각 유사도(`pg_trgm`)나 별도의 형태소 분석이 필요하다.
-- **동의어와 의미는 못 잡는다.** `happy`로 검색해도 `joyful`만 있는 글은 찾지 못한다. 이런 것은 임베딩을 이용한 벡터 검색의 영역이다. 실무에서는 키워드 검색과 벡터 검색을 함께 쓰는 하이브리드 구성을 많이 쓴다.
-- 이름이 비슷한 `tsvector`와 pgvector의 `vector`는 다르다. 전자는 **단어와 위치 목록**이고, 후자는 **임베딩 숫자 배열**이다.
+- **동의어와 의미는 못 잡는다.** `happy`로 검색해도 `joyful`만 있는 글은 찾지 못한다. 어간이 같아야 같은 단어로 보기 때문이다. 이 한계를 메우는 것이 다음에 나오는 벡터 검색이다.
+
+### 9. 벡터 검색은 무엇이 다를까
+
+키워드 검색이 **단어가 들어 있는지**를 비교한다면, 벡터 검색은 **의미가 가까운지**를 비교한다.
+
+- **임베딩(embedding)**: 문장을 **의미를 담은 숫자 배열**로 바꾼 것이다. 임베딩 모델에 문장을 넣으면 `[0.12, -0.03, 0.88, ...]`처럼 수백~수천 개의 숫자가 나온다. 뜻이 비슷한 문장은 비슷한 숫자 배열이 나오도록 학습된 모델이다.
+- **벡터 검색**: 문서를 미리 임베딩해서 저장해 두고, 검색어도 같은 모델로 임베딩한 뒤, 두 배열이 **얼마나 가까운지**(거리, 유사도)로 순위를 매긴다.
+
+흐름은 이렇게 두 단계다.
+
+1. **저장할 때(한 번)**: 문서 본문을 임베딩 모델에 넣어 숫자 배열을 얻고, 본문과 함께 저장한다.
+2. **검색할 때(매번)**: 검색어를 **같은 모델**로 임베딩하고, 저장된 배열들과 거리를 비교해 가까운 순으로 가져온다.
+
+키워드 검색에서 문서와 검색어를 **같은 규칙**(`'english'`)으로 변환해야 했던 것과 같다. 벡터 검색에서는 **같은 임베딩 모델**을 써야 한다. 모델이 다르면 숫자의 의미가 달라서 비교할 수 없다.
+
+#### 원리를 SQL로 확인해 보기
+
+임베딩 모델 없이 원리만 보려고, 의미를 3개의 숫자로 손으로 만든 장난감 벡터를 썼다. 실제 임베딩은 이렇게 사람이 만들 수 없고 모델이 만든다. 비교 방식인 **코사인 유사도**(두 배열이 같은 방향을 향하는 정도, 1에 가까울수록 비슷함)를 일반 SQL로 계산했다.
+
+```sql
+WITH docs(id, body, v) AS (VALUES
+ (1, 'She felt joyful today.',          ARRAY[0.90, 0.10, 0.05]::float8[]),
+ (2, 'He was delighted with the gift.', ARRAY[0.85, 0.15, 0.10]),
+ (3, 'The engine needs new oil.',       ARRAY[0.05, 0.10, 0.95]),
+ (4, 'I am happy.',                     ARRAY[0.92, 0.08, 0.03])),
+q(v) AS (VALUES (ARRAY[0.88, 0.12, 0.04]::float8[]))   -- 'happy'를 나타내는 장난감 벡터
+SELECT d.id, d.body,
+       round(((SELECT sum(a*b) FROM unnest(d.v, q.v) AS t(a,b)) /
+        (sqrt((SELECT sum(a*a) FROM unnest(d.v) a)) *
+         sqrt((SELECT sum(b*b) FROM unnest(q.v) b))))::numeric, 4) AS cosine_similarity
+FROM docs d, q
+ORDER BY cosine_similarity DESC;
+```
+
+| id | 문장 | 코사인 유사도 |
+|---|---|---|
+| 1 | She felt joyful today. | 0.9996 |
+| 4 | I am happy. | 0.9987 |
+| 2 | He was delighted with the gift. | 0.9968 |
+| 3 | The engine needs new oil. | 0.1105 |
+
+- `happy`라는 단어가 없는 `joyful`, `delighted` 문장이 가장 위에 온다. 키워드 검색으로는 찾을 수 없던 결과다.
+- 뜻이 전혀 다른 `engine` 문장은 유사도가 낮다.
+- 이 숫자는 설명용으로 직접 지정한 값이다. 실제 모델이 만든 임베딩의 결과가 아니다.
+
+#### PostgreSQL에서는 pgvector 확장을 쓴다
+
+PostgreSQL은 기본 기능만으로는 벡터를 효율적으로 저장하고 검색하지 못한다. 대신 **pgvector 확장**을 설치하면 `vector` 타입과 거리 연산자, 벡터 전용 인덱스를 쓸 수 있다. 아래는 pgvector 문서를 기준으로 정리한 사용 형태이고, 앞의 장난감 예제와 달리 직접 실행해 본 것은 아니다.
+
+```sql
+CREATE EXTENSION vector;
+
+CREATE TABLE doc (
+    id        bigserial PRIMARY KEY,
+    body      text NOT NULL,
+    embedding vector(1536)      -- 쓰는 임베딩 모델의 차원 수와 같아야 한다
+);
+
+-- 가까운 순 5건 (<=> 는 코사인 거리, 작을수록 비슷함)
+SELECT id, body, embedding <=> $1 AS distance
+FROM doc
+ORDER BY embedding <=> $1
+LIMIT 5;
+```
+
+- **`vector(n)`**: `n`개의 숫자를 담는 타입이다. 모델마다 차원 수가 다르므로 모델에 맞춰야 한다.
+- **`<=>`**: 코사인 거리다. 이 외에 유클리드 거리 `<->`, 내적 `<#>`가 있다.
+- **`$1`**: 검색어를 임베딩 모델에 넣어 얻은 배열이다. 이 변환은 DB가 아니라 **애플리케이션이 모델을 호출해서** 만들어 넘긴다.
+- **인덱스**: 문서가 많아지면 전체를 다 비교하기 어려워서 근사 검색 인덱스(HNSW, IVFFlat)를 건다. 정확도를 조금 양보하는 대신 훨씬 빠르다.
+
+설치는 환경에 따라 다르다. Linux는 패키지로 설치하는 경우가 많고, Windows는 공식 설치 파일이 아니라 Visual Studio C++ 빌드 도구로 `nmake`로 빌드하는 방법이 안내되어 있다. 그 뒤 `CREATE EXTENSION vector;`를 실행한다.
+
+### 10. 키워드 검색 vs 벡터 검색
+
+| | 키워드 검색 (`tsvector`) | 벡터 검색 (`pgvector`) |
+|---|---|---|
+| 비교 대상 | 단어(어간) | 임베딩 숫자 배열 |
+| 저장되는 것 | `'activ':2,6` 같은 단어·위치 목록 | `[0.12, -0.03, ...]` 숫자 배열 |
+| 만드는 법 | DB 함수가 규칙으로 변환 | 임베딩 모델을 호출해서 얻음 |
+| 동의어 | 못 찾음 | 찾음 |
+| 정확한 용어, 코드, 고유명사 | 잘 찾음 | 놓칠 수 있음 |
+| 결과 설명 | 어떤 단어가 맞았는지 보임 | 왜 가까운지 설명하기 어려움 |
+| 비용 | 낮음 | 임베딩 모델 호출 비용이 듦 |
+| PostgreSQL | 기본 기능 | 확장 설치 필요 |
+
+이름이 비슷한 `tsvector`와 pgvector의 `vector`는 **서로 다른 타입**이다. 전자는 **단어와 위치 목록**이고, 후자는 **임베딩 숫자 배열**이다.
+
+둘은 장단점이 반대라서 **함께 쓰는 하이브리드 검색**이 많다. 키워드 검색 결과와 벡터 검색 결과를 합쳐서 순위를 정한다. 정확한 용어는 키워드가, 뜻이 비슷한 표현은 벡터가 메워 준다.
 
 ### 정리
 
@@ -147,3 +234,5 @@ LIKE로 하려던 일에서 오히려 원하지 않는 결과(`inactive`)가 나
 - `to_tsvector`는 문서를 어간 + 위치 목록으로, `websearch_to_tsquery`는 검색어를 질의로 바꾼다.
 - `@@`는 걸러내고, `ts_rank`는 점수를 매기며, GIN 인덱스는 `어간 → 문서` 목록을 만들어 빠르게 찾게 한다.
 - LIKE는 글자 일치, 전문 검색은 단어(어간) 일치다. 둘 다 문자열 기반이라 의미까지 이해하지는 못한다.
+- 벡터 검색은 **문서와 검색어를 같은 임베딩 모델로 숫자 배열로 바꾸고, 거리가 가까운 순**으로 찾는다. 동의어와 의미를 잡지만 정확한 용어에는 약할 수 있다.
+- PostgreSQL에서는 **pgvector 확장**으로 벡터 검색을 하고, 실무에서는 키워드와 벡터를 함께 쓰는 하이브리드가 많다.
