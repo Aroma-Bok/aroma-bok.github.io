@@ -1,6 +1,6 @@
 ---
 title: "Maven과 Gradle 차이 - 빌드도구 개념과 예시 코드 정리"
-date: 2026-11-04 14:00:00 +0900
+date: 2026-11-04 10:30:00 +0900
 categories: ["Framework & Library", "Spring Boot"]
 tags: ["maven", "gradle", "build-tool", "pom-xml", "build-gradle", "dependency-management", "spring-boot", "egovframe", "mvnw", "gradlew"]
 tistory_url: "https://aroma-bok.tistory.com/entry/Maven%EA%B3%BC-Gradle-%EC%B0%A8%EC%9D%B4-%EB%B9%8C%EB%93%9C%EB%8F%84%EA%B5%AC-%EA%B0%9C%EB%85%90%EA%B3%BC-%EC%98%88%EC%8B%9C-%EC%BD%94%EB%93%9C-%EC%A0%95%EB%A6%AC"
