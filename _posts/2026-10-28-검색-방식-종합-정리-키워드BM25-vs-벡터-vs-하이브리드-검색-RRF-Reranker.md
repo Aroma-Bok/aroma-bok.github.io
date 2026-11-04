@@ -3,6 +3,7 @@ title: "검색 방식 종합 정리 - 키워드(BM25) vs 벡터 vs 하이브리�
 date: 2026-10-28 09:00:00 +0900
 categories: ["AI & Data Engineering"]
 tags: ["rag", "bm25", "keyword-search", "vector-search", "hybrid-search", "rrf", "reranker", "embedding", "opensearch", "retrieval"]
+tistory_url: "https://aroma-bok.tistory.com/entry/%EA%B2%80%EC%83%89-%EB%B0%A9%EC%8B%9D-%EC%A2%85%ED%95%A9-%EC%A0%95%EB%A6%AC-%ED%82%A4%EC%9B%8C%EB%93%9CBM25-vs-%EB%B2%A1%ED%84%B0-vs-%ED%95%98%EC%9D%B4%EB%B8%8C%EB%A6%AC%EB%93%9C-%EA%B2%80%EC%83%89-RRF-Reranker"
 ---
 ### 들어가며
 
