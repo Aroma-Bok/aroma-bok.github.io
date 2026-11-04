@@ -3,6 +3,7 @@ title: "API Gateway는 왜 WebFlux를 쓸까 - MVC와의 차이, 블로킹·논�
 date: 2026-11-04 09:00:00 +0900
 categories: ["Framework & Library", "Spring Boot"]
 tags: ["spring-cloud-gateway", "webflux", "spring-mvc", "reactive", "api-gateway", "msa", "netty", "tomcat", "spring-security", "mono"]
+tistory_url: "https://aroma-bok.tistory.com/entry/API-Gateway%EB%8A%94-%EC%99%9C-WebFlux%EB%A5%BC-%EC%93%B8%EA%B9%8C-MVC%EC%99%80%EC%9D%98-%EC%B0%A8%EC%9D%B4-%EB%B8%94%EB%A1%9C%ED%82%B9%C2%B7%EB%85%BC%EB%B8%94%EB%A1%9C%ED%82%B9-%EC%A0%95%EB%A6%AC"
 ---
 ### 들어가며
 
