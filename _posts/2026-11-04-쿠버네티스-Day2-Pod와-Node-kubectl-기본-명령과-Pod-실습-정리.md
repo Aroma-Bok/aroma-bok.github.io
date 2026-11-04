@@ -3,6 +3,7 @@ title: "쿠버네티스 Day2 - Pod와 Node, kubectl 기본 명령, Pod 실습 �
 date: 2026-11-04 14:30:00 +0900
 categories: ["ETC", "쿠버네티스 자격증 공부 정리"]
 tags: ["kubernetes", "k8s", "pod", "node", "kubectl", "yaml", "dry-run", "multi-container", "sidecar", "cka"]
+tistory_url: "https://aroma-bok.tistory.com/entry/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4-Day2-Pod%EC%99%80-Node-kubectl-%EA%B8%B0%EB%B3%B8-%EB%AA%85%EB%A0%B9-Pod-%EC%8B%A4%EC%8A%B5-%EC%A0%95%EB%A6%AC"
 ---
 ### 들어가며
 
